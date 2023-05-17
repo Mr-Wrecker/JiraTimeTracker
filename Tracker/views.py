@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from webconfig import settings
 from datetime import datetime
 from .models import Track
 import json
@@ -9,14 +10,14 @@ import json
 def addLogWork(issueId, workTime):
     import requests
 
-    url = f"http://127.0.0.1:8080/rest/api/2/issue/{issueId}/worklog"
+    url = f"http://{settings.DOMAIN}/rest/api/2/issue/{issueId}/worklog"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer NTA4NDUzODQzMzQ1OhVJAIXosL+iv2PGjcQY8CloP8ua"
+        "Authorization": f"Bearer {settings.TOKEN}"
     }
     data = {
         "timeSpentSeconds": workTime,
-        "comment": "TimeTracker Logged a Transition"
+        "comment": f"TimeTracker Logged a Time Spend - {workTime}s"
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
@@ -34,9 +35,9 @@ def track(request):
             request.body.decode('utf-8'))['transition']['from_status']
         transitionToStatus = json.loads(
             request.body.decode('utf-8'))['transition']['to_status']
-        if transitionFromStatus == 'To Do' and transitionToStatus == 'In Progress':
+        if transitionFromStatus == settings.FromStatusStart and transitionToStatus == settings.ToStatusStart:
             transitionStatus = "Start Work"
-        elif transitionFromStatus == 'In Progress' and transitionToStatus == 'To Do':
+        elif transitionFromStatus == settings.ToStatusStart and transitionToStatus == settings.FromStatusStart:
             transitionStatus = "End Work"
 
         new = Track()

@@ -1,6 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 
-from webconfig import settings
+
 class DisableCSRF(MiddlewareMixin):
-   def process_request(self, request):
+    def process_request(self, request):
         setattr(request, '_dont_enforce_csrf_checks', True)

@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from datetime import datetime
 from .models import Track
 import json
 
 
 # Create your views here.
-def addLogWork(issueId):
+def addLogWork(issueId, workTime):
     import requests
 
     url = f"http://127.0.0.1:8080/rest/api/2/issue/{issueId}/worklog"
@@ -13,7 +15,7 @@ def addLogWork(issueId):
         "Authorization": "Bearer NTA4NDUzODQzMzQ1OhVJAIXosL+iv2PGjcQY8CloP8ua"
     }
     data = {
-        "timeSpent": "1h",
+        "timeSpentSeconds": workTime,
         "comment": "TimeTracker Logged a Transition"
     }
 
@@ -48,10 +50,22 @@ def track(request):
         new.save()
 
         if transitionStatus == "End Work":
-            # Track.objects.filter().update(active=True)
-            ...
+            start = get_object_or_404(Track, issueId=issueId, userKey=userKey,
+                                      transitionStatus='S', isLastTransition=True)
+            startTimestamp = int(datetime.timestamp(start.transitionTime))
+
+            end = get_object_or_404(Track, issueId=issueId, userKey=userKey,
+                                    transitionStatus='E', isLastTransition=True)
+            endTimestamp = int(datetime.timestamp(end.transitionTime))
+
+            Track.objects.filter(issueId=issueId, userKey=userKey,
+                                 transitionStatus='S', isLastTransition=True).update(isLastTransition=False)
+            Track.objects.filter(issueId=issueId, userKey=userKey,
+                                 transitionStatus='E', isLastTransition=True).update(isLastTransition=False)
+
+            addLogWork(issueId, endTimestamp-startTimestamp)
 
     else:
-        print("Request Not POST")
+        print("Bad Request")
 
     return HttpResponse()

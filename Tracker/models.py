@@ -8,6 +8,7 @@ class Track(models.Model):
     STATUS_CHOICES = (
         ('S', "Start Work On Issue"),
         ('E', "End Work On Issue"),
+        ('O', "Other Transition")
     )
 
     issueId = models.CharField(max_length=50)

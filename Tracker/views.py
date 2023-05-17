@@ -35,9 +35,10 @@ def track(request):
             request.body.decode('utf-8'))['transition']['from_status']
         transitionToStatus = json.loads(
             request.body.decode('utf-8'))['transition']['to_status']
-        if transitionFromStatus == settings.FromStatusStart and transitionToStatus == settings.ToStatusStart:
+        transitionStatus = None
+        if transitionFromStatus in settings.StartFromStatus and transitionToStatus in settings.StartToStatus:
             transitionStatus = "Start Work"
-        elif transitionFromStatus == settings.ToStatusStart and transitionToStatus == settings.FromStatusStart:
+        elif transitionFromStatus in settings.EndFromStatus and transitionToStatus in settings.EndToStatus:
             transitionStatus = "End Work"
 
         new = Track()
@@ -48,6 +49,8 @@ def track(request):
             new.transitionStatus = 'S'
         elif transitionStatus == "End Work":
             new.transitionStatus = 'E'
+        else:
+            new.transitionStatus = 'O'
         new.save()
 
         if transitionStatus == "End Work":

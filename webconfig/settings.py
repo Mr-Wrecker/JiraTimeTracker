@@ -132,5 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Tracker Info
 DOMAIN = ""
 TOKEN = ""
-FromStatusStart = ""
-ToStatusStart = ""
+StartFromStatus = []
+StartToStatus = []
+EndFromStatus = []
+EndToStatus = []
